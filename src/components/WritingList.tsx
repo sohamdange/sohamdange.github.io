@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { WRITING_EMPTY_STATE } from '@/lib/constants'
 
 const CATEGORIES = [
   'All',
@@ -54,7 +55,7 @@ export default function WritingList({ posts }: WritingListProps) {
 
       {/* Posts or empty state */}
       {filtered.length === 0 ? (
-        <p className="text-[#6B7280]">Writing in progress. First post coming soon.</p>
+        <p className="text-[#6B7280]">{WRITING_EMPTY_STATE}</p>
       ) : (
         <div className="flex flex-col divide-y divide-[#E5E7EB]">
           {filtered.map((post) => (

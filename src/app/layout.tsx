@@ -3,6 +3,7 @@ import { Fraunces, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import { SITE_URL } from '@/lib/constants'
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -25,13 +26,30 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '500'],
 })
 
+const description =
+  'Systems thinker. Tool builder. I work at the intersection of simulation and engineering architecture.'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'Soham Dange',
     template: '%s — Soham Dange',
   },
-  description:
-    'Systems thinker. Tool builder. I work at the intersection of simulation and engineering architecture.',
+  description,
+  openGraph: {
+    type: 'website',
+    siteName: 'Soham Dange',
+    title: 'Soham Dange',
+    description,
+    url: SITE_URL,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Soham Dange' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Soham Dange',
+    description,
+    images: ['/og-image.png'],
+  },
 }
 
 export default function RootLayout({

@@ -1,13 +1,15 @@
 import Link from 'next/link'
 import ProjectCard from '@/components/ProjectCard'
-import { getAllProjects } from '@/lib/mdx'
+import { getFeaturedProjects, getAllWriting } from '@/lib/mdx'
+import {
+  FEATURED_PROJECT_LIMIT,
+  RECENT_WRITING_LIMIT,
+  WRITING_EMPTY_STATE,
+} from '@/lib/constants'
 
 export default function Home() {
-  const allProjects = getAllProjects()
-  const featuredSlugs = ['afm-simulation', 'oxygen-concentrator']
-  const featuredProjects = featuredSlugs
-    .map((slug) => allProjects.find((p) => p.slug === slug))
-    .filter(Boolean)
+  const featuredProjects = getFeaturedProjects(FEATURED_PROJECT_LIMIT)
+  const recentWriting = getAllWriting().slice(0, RECENT_WRITING_LIMIT)
 
   return (
     <div className="max-w-wide mx-auto px-6 md:px-8 py-16">
@@ -40,11 +42,12 @@ export default function Home() {
         <div className="flex flex-col gap-4">
           {featuredProjects.map((project) => (
             <ProjectCard
-              key={project!.slug}
-              title={project!.title}
-              slug={project!.slug}
-              tags={project!.tags}
-              summary={project!.summary}
+              key={project.slug}
+              title={project.title}
+              slug={project.slug}
+              tags={project.tags}
+              summary={project.summary}
+              date={project.date}
             />
           ))}
         </div>
@@ -63,9 +66,28 @@ export default function Home() {
             All writing →
           </Link>
         </div>
-        <p className="text-[#6B7280] text-sm">
-          Writing in progress. First post coming soon.
-        </p>
+        {recentWriting.length === 0 ? (
+          <p className="text-[#6B7280] text-sm">{WRITING_EMPTY_STATE}</p>
+        ) : (
+          <div className="flex flex-col divide-y divide-[#E5E7EB]">
+            {recentWriting.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/writing/${post.slug}`}
+                className="py-5 group focus-visible:outline-none"
+              >
+                <div className="flex items-start justify-between gap-6">
+                  <h3 className="font-display text-[#111111] text-base leading-snug group-hover:text-[#2563EB] group-focus-visible:text-[#2563EB] transition-colors">
+                    {post.title}
+                  </h3>
+                  <time className="font-mono text-xs text-[#6B7280] shrink-0 mt-1">
+                    {post.date}
+                  </time>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )

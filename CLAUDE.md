@@ -96,28 +96,56 @@ Both `[slug]` routes fall back to a `_placeholder` slug that 404s when every fil
 /src
   /app          — Next.js App Router pages
   /components   — reusable UI components
-  /lib          — MDX parsing, utilities
-/public         — static assets
+  /lib          — MDX parsing, utilities, shared constants
+/public         — static assets (incl. og-image.png)
 ```
 
 ## Routes & Pages
 | Route | Description |
 |---|---|
-| `/` | Home — intro + 2 featured projects (AFM + Oxygen Concentrator) |
+| `/` | Home — hero, featured projects, recent writing |
 | `/projects` | Project list |
 | `/projects/[slug]` | Individual project (MDX) |
 | `/writing` | Writing list with category filter tabs (empty state at launch) |
 | `/writing/[slug]` | Individual post (MDX) |
 | `/about` | About page |
 | `/contact` | Contact — no form, just links |
+| `not-found.tsx` | Styled 404 with links to every route |
+| `sitemap.ts` / `robots.ts` | Generated at build into `/out` as `sitemap.xml` and `robots.txt` |
+
+## Home Page Structure
+Three sections, all data-driven — no content hardcoded in the component:
+1. **Hero** — name, role, positioning line
+2. **Featured work** — projects with `featured: true`, date desc, limit `FEATURED_PROJECT_LIMIT`
+3. **Recent writing** — newest posts, limit `RECENT_WRITING_LIMIT`, falls back to
+   `WRITING_EMPTY_STATE` when there are none
+
+Limits and shared copy live in `src/lib/constants.ts`. Never inline the writing empty-state
+string — both the home page and `WritingList` import the same constant so they cannot drift.
 
 ## Content Architecture
-* Projects: `/content/projects/[slug].mdx` — frontmatter: `title`, `date`, `tags`, `slug`, `summary`
-* Writing: `/content/writing/[slug].mdx` — frontmatter: `title`, `date`, `tags`, `slug`, `summary`, `category`
+* Projects: `/content/projects/[slug].mdx` — frontmatter: `title`, `date`, `tags`, `slug`, `summary`, optional `featured`, optional `draft`
+* Writing: `/content/writing/[slug].mdx` — frontmatter: `title`, `date`, `tags`, `slug`, `summary`, `category`, optional `draft`
 * Writing categories: Modeling & Simulation · Systems Thinking · Energy Technology · Engineering Architecture · Engineering Growth
 * Writing at launch: Empty state — "Writing in progress. First post coming soon."
 * Adding content workflow: Create an MDX file in the correct folder → done. No other steps.
 * Unfinished content: add `draft: true` to the frontmatter — see "Draft Content" above.
+* Promote to the home page: add `featured: true`. Never hardcode slugs in a component.
+
+### Dates
+* **Projects: `date` is when the work was done**, not when it was added to the site. The year
+  carries meaning (the oxygen concentrator is 2021 because it was built during Covid).
+* **Writing: `date` is the publication date.**
+* Both lists sort newest first, in `mdx.ts`, so every consumer inherits the same order.
+* YAML parses an unquoted `date: 2024-01-01` as a **Date object**, which crashes the build when
+  rendered into JSX. `normalizeDate()` in `mdx.ts` converts every date to an ISO string at the
+  boundary — do not remove it, and do not render `frontmatter.date` from raw `matter()` output.
+
+## Metadata & SEO
+* `metadataBase` and Open Graph / Twitter defaults are set in `src/app/layout.tsx`
+* `public/og-image.png` (1200×630) is a **generated placeholder** using Georgia/Segoe UI, not
+  Fraunces/Plus Jakarta Sans — replace it with a properly designed card when convenient
+* Site URL lives in `SITE_URL` (`src/lib/constants.ts`) — used by metadata, sitemap, and robots
 
 ## Local Development
 * Dev server: `npm run dev` → `http://localhost:3000`

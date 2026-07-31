@@ -5,14 +5,22 @@ interface ProjectCardProps {
   slug: string
   tags: string[]
   summary: string
+  /** ISO date of the work itself; only the year is shown. */
+  date?: string
 }
 
-export default function ProjectCard({ title, slug, tags, summary }: ProjectCardProps) {
+export default function ProjectCard({ title, slug, tags, summary, date }: ProjectCardProps) {
+  const year = date?.slice(0, 4)
+
   return (
     <Link
       href={`/projects/${slug}`}
       className="block border border-[#E5E7EB] p-6 hover:border-[#2563EB] focus-visible:outline-none focus-visible:border-[#2563EB] active:border-[#2563EB] transition-colors group"
     >
+      {year && (
+        <p className="font-mono text-xs text-[#6B7280] mb-2">{year}</p>
+      )}
+
       <h3 className="font-display text-[#111111] text-lg leading-snug mb-3 group-hover:text-[#2563EB] transition-colors">
         {title}
       </h3>

@@ -24,6 +24,7 @@ export default function ProjectsPage() {
             slug={project.slug}
             tags={project.tags}
             summary={project.summary}
+            date={project.date}
           />
         ))}
       </div>
