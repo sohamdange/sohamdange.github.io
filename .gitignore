@@ -98,6 +98,10 @@ desktop.ini
 # .claude/settings.json (shared config) stays tracked.
 .claude/settings.local.json
 
+# Local skills — guidance for Claude, not part of the site.
+# Kept local so the public repo stays source + content only.
+.claude/skills/
+
 # Local git hooks — kept out of the repo deliberately.
 # The pre-commit publishing gate lives here on this machine only;
 # it is not distributed with a clone. See CLAUDE.md.
