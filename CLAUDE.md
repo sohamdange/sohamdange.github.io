@@ -201,6 +201,24 @@ content of its own; add a job by adding an object, never by editing JSX.
   instant; do not add `scroll-behavior: smooth` (see the no-animation rule).
 * Layout is a sticky rail from `lg` up, a wrapping row above the content below that.
 
+### About page timeline
+`src/components/Timeline.tsx` renders the serpentine timeline below the intro prose.
+The full geometry is documented in the file header — read it before touching the layout.
+
+* The thread is a **single SVG path** over a 720×470 viewBox, not CSS borders. One path
+  cannot develop seams where segments meet, and the U-turns are real curves.
+* The box is **fluid**: the wrapper carries the aspect ratio and node positions are
+  percentages, so it scales with the column. An earlier fixed-width version gated on `lg`
+  drew nothing below a 1024px viewport — easy to hit on a scaled Windows display. Do not
+  reintroduce a fixed pixel width.
+* Labels on the node a U-turn descends from (last in the row, with a row still to come)
+  render **above** the node, or the curve cuts through them. That is derived from the
+  index, not hardcoded, so it survives adding or reordering entries.
+* Icons are inline SVG on an 18×18 grid — no icon dependency. FEV (cog) and Generac
+  (briefcase) are neutral placeholders awaiting real logos.
+* Entries are data at the top of the file. Below `md` the thread is dropped entirely and
+  the entries become a single-column ledger.
+
 ### Dates
 * **Projects: `date` is when the work was done**, not when it was added to the site. The year
   carries meaning (the oxygen concentrator is 2021 because it was built during Covid).

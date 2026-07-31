@@ -1,3 +1,5 @@
+import Timeline from '@/components/Timeline'
+
 export const metadata = {
   title: 'About',
 }
@@ -27,6 +29,10 @@ export default function AboutPage() {
           figuring out. No polish for the sake of polish, just honest technical thinking, made
           visible over time.
         </p>
+      </div>
+
+      <div className="mt-20">
+        <Timeline />
       </div>
     </div>
   )
