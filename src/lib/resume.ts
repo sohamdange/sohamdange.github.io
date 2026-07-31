@@ -210,8 +210,8 @@ export const education: EducationEntry[] = [
         'Development of a reliability test rig for condensate pump at Forbes Marshall Pvt. Ltd.',
     },
     bullets: [
-      'Built a custom test rig to simulate three years of usage within a month, evaluating long-term durability for a mechanically operated condensate pump handling 110 kg of steam per cycle at 14 bar.',
-      'Performed pre-homologation calculations and testing compliant with ASME BPVC Section VIII, Division 1, and ran finite element analysis of the actuator under high-temperature, high-pressure conditions.',
+      'Built a custom test rig to simulate three years of usage within a month, evaluating long-term durability for a mechanically operated condensate pump discharging 110 kg of condensate per cycle at 14 bar.',
+      'Performed pre-homologation calculations and testing compliant with ASME BPVC Section VIII, Division 1.',
     ],
     projectSlug: 'condensate-pump-test-rig',
   },

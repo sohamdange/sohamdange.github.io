@@ -1,34 +1,191 @@
 ---
-title: Reliability Test Rig for Condensate Pump
-date: 2023-06-01
+title: Accelerated Wear Test Rig for a Condensate Pump Mechanism
+date: 2018-05-01
 tags:
   - Test Engineering
+  - Reliability
   - Hardware
-  - Mechanical Systems
+  - Mechanical Design
 slug: condensate-pump-test-rig
-summary: Designed a test rig to evaluate the reliability of a condensate pump under real operating conditions. Focused on test architecture, instrumentation, and translating failure modes into measurable signals.
+summary: A condensate pump's mechanism fails at a pivot pin that takes a million impact-loaded cycles in hot, corrosive water. Field data needs years to say anything about it, so the deliverable became an instrument rather than a part — a pneumatic rig that runs a service life in about a month.
 ---
 
 ## Problem Definition
 
-[PLACEHOLDER] Describe the engineering problem: what is the condensate pump, what does it do in the system, and what failure modes were you trying to characterize? Why was a dedicated test rig necessary — what couldn't be learned from field data alone? What questions did the test need to answer, and how would you know when it had answered them?
+A steam plant throws away real energy in its condensate. The water leaving a heat exchanger
+is already hot, already treated, and already distilled, so the cheapest thing to do with it
+is put it back in the boiler. Moving it there is the hard part. An electric pump on that
+duty handles liquid near its saturation point, which is the condition centrifugal pumps
+cavitate in.
+
+A pressure-powered pump sidesteps that by having no impeller and no motor. It is a vessel
+with a float in it:
+
+- Condensate flows in under gravity and the float rises.
+- At a set level a spring-loaded linkage goes over centre and **snaps**, throwing the motive
+  steam inlet open and the exhaust shut in one motion.
+- Steam pressure pushes the charge out against whatever back pressure the plant imposes.
+- The level falls, the float drops, the linkage snaps back, and it fills again.
+
+Nothing rotates and nothing cavitates. The trade is that the snap is also where it breaks.
+
+<PumpMechanismFigure />
+
+The linkage turns on a pivot pin, and that pin is the life-limiting part of the pump:
+
+- It is loaded by **impact, not rotation**. The mechanism is built to store spring energy and
+  release it discontinuously, so every cycle ends in a strike.
+- It sits in **near-boiling condensate** the whole time, so mechanical wear and corrosive wear
+  run together rather than separately.
+- Wear damages the pump **twice**. The pin thins, the linkage develops slop, and the trip
+  points drift until it stops snapping cleanly — and the material removed does not leave.
+  Debris stays in the vessel with the mechanism that generated it.
+
+So: which pin material lasts longest in that environment? The honest answer takes years. A
+pump in service cycles a few dozen times an hour, the pin is buried inside a pressure vessel,
+and you cannot instrument a customer's process to find out. Waiting for the field to answer
+is not a test strategy.
 
 ## Architecture Overview
 
-[PLACEHOLDER] Describe the test rig architecture. What are the major subsystems — the hydraulic loop, the loading system, the measurement chain, the control and data acquisition layer? How were operating conditions set and maintained? What does a single test run look like from start to finish?
+The rig is a horizontal shell with a bolted cover plate that carries everything, so the whole
+assembly lifts out for inspection without disturbing the tank.
+
+<RigLayoutFigure />
+
+**The tank.**
+
+- Heated salt water instead of condensate, at atmospheric pressure.
+- An electric immersion heater holds temperature; float valves hold level.
+- Circulation pipes move water between the heater compartment and the mechanism compartments,
+  so a specimen is never sitting in a thermal gradient.
+- The shell is redox coated — a rig that corrodes faster than the part under test has stopped
+  being a measurement.
+- **Two mechanism compartments** flanking the heater, so two materials can run side by side
+  under identical conditions.
+
+**The drive.**
+
+- A pneumatic cylinder with an extended piston rod, mounted on top of the cover plate.
+- At the end of the rod, a slider captured between two guide pins.
+- The slider runs in a slot bolted to the float lever nose, swinging the lever through the
+  same arc a rising and falling float would give it.
+- Air inlet and exhaust valves reproduce the pressure the mechanism normally switches against,
+  so the linkage is loaded rather than free-running.
+
+<MechanismMountFigure />
+
+**A run.** Measure the pin, install it, start the rig, let it cycle, stop at the target count,
+strip the mechanism, measure again. Wear is the difference between the two measurements,
+converted from diameter loss to volume removed.
 
 ## Key Design Decisions
 
-[PLACEHOLDER] Walk through the most important design choices. How did you define the accelerated life test profile? What instrumentation did you choose and why — pressure transducers, flow meters, vibration sensors, thermocouples? What data acquisition rate did you settle on? How did you handle the interface between the wet side and the instrumentation?
+**Actuate the mechanism; do not reproduce the process.** The rig never pumps anything — no
+condensate, no steam, no discharge line. The slow part of the real cycle is filling a vessel
+by gravity, which is exactly the part that has nothing to do with how the pin wears. Delete
+it and cycle rate becomes a design variable instead of a constraint.
+
+**Design the schedule before the hardware.** A force balance across the piston, rod, friction,
+and the mechanism's own spring load gives a second-order differential equation, solved by
+fourth-order Runge–Kutta in MATLAB. It returned 0.914 s for a complete cycle. That assumes the
+cylinder's pressure force acts at full value throughout, which it does not, so it was treated
+as a floor and buffered to two or three seconds. At that rate a million cycles takes about a
+month. The test was known to fit the schedule before any metal was cut.
+
+<CycleDynamicsFigure />
+
+**Drive it with force, not with position.** An over-centre toggle is built to resist motion
+until it suddenly does not. A stiff, position-driven coupling has to fight the mechanism
+through that transition and hold it at every intermediate angle. A pneumatic cylinder pushes
+with a bounded force and lets the mechanism snap on its own stored energy instead of dragging
+it across. Surplus force is what buys the accelerated cycle rate.
+
+**Let the slot absorb the geometry.** The cylinder travels in a straight line, the float lever
+swings on an arc, and the slider-in-slot reconciles them with one moving part and no extra
+joints — leaving the mechanism free to complete its own snap rather than being held to the
+actuator's position at every instant.
+
+**Measure wear by volume, not by mass.** The pin is a plain cylinder, so a diameter measured
+before and after converts directly to material removed. Mass loss on a part that small sits
+inside the noise of anything a student lab can weigh, and profilometry answers a question
+about roughness rather than about how much pin is left.
+
+**Accelerate the environment with what is affordable.** Real service is hot condensate under
+pressure, and reproducing that faithfully means a boiler and a pressure vessel, neither of
+which belongs on a bench with people around it. Heated salt water gets temperature and an
+aggressive corrosive load at atmospheric pressure.
+
+**Shortlist against the property set, not a datasheet ranking.** The pin needs wear and galling
+resistance, corrosion and stress-corrosion resistance, fatigue strength, and impact toughness,
+and those pull against each other. Three candidates reached test — Material 1, Material 2, and
+Material 3.
 
 ## Tradeoffs
 
-[PLACEHOLDER] What tradeoffs shaped the final design? Where did you accept instrumentation uncertainty to keep the rig simpler? What failure modes did you decide not to test for, and why? Where did the accelerated test profile diverge from real-world conditions, and what does that mean for the conclusions you can draw?
+**The rig accelerates cycles, not physics.** Running one cycle every few seconds instead of
+every few minutes assumes wear per cycle is independent of how often cycles happen. Dwell under
+load and corrosion between strikes both plausibly scale with elapsed time rather than cycle
+count, and a rig this fast under-represents them. The acceleration factor is asserted, never
+measured.
 
-## Lessons Learned
+**Salt water is a proxy, and not conservative in every direction.** Harsher than condensate
+chemically, which is the point — but it omits flash steam, the real thermal cycle, and the
+water chemistry a treated system actually runs.
 
-[PLACEHOLDER] What did you learn from actually running the rig that you didn't know from the design phase? What failed that you didn't expect, and what held up better than you thought? What does this project tell you about the gap between a designed test and one that produces trustworthy data?
+**The comparison the rig was built to make never happened.** Two compartments existed
+specifically so two materials could run under identical conditions. Technical difficulties meant
+testing one at a time, and only Material 1 completed a run. The output is one absolute number
+rather than the ranking across three the whole design was aimed at — the least useful form the
+result could have taken.
+
+**One specimen, one measurement, no repeat.** No scatter attached, so no way to tell whether the
+figure is representative or an outlier.
+
+**The run stopped at half the planned count** — 500,000 cycles rather than a million.
+
+**Before-and-after cannot see the shape of the wear curve.** Two measurements give an average
+rate and nothing else. Fast run-in followed by a flat steady state, and steady linear wear
+throughout, produce the same endpoint and extrapolate to completely different service lives.
+Since extrapolating to service life is the entire purpose, this is the most consequential gap
+in the method.
+
+## Results
+
+- **Cycle rate:** two to two-point-eight seconds per cycle against the 0.914 s the differential
+  equation predicted — inside the buffer the schedule was built with. A million cycles fits in
+  roughly a month at that rate.
+- **Wear:** Material 1 completed 500,000 cycles. Wear was measured as diameter loss converted to
+  volume removed, and the pin was still serviceable at the end of it.
+- **Not run:** Materials 2 and 3 never got a cycle.
+- **The most durable result was not an objective.** The rig actuates a float lever through its
+  arc in a hot corrosive tank, and nothing about it is specific to the pump it was built for.
+  Any snap-action float linkage mounts on the same cover plate and runs on the same schedule.
+  It was commissioned as a test for one product; what it actually is is a mechanism reliability
+  rig.
 
 ## What I'd Improve Next
 
-[PLACEHOLDER] If you iterated on this rig, what would change first? Better sensor placement? Automated test sequencing to reduce human error? A more realistic duty cycle profile? Improved data pipeline for faster failure detection? What is the current bottleneck between running a test and actually understanding what happened?
+The binding problem is that the rig was built to compare materials and produced a measurement
+of one. In order:
+
+1. **Run the remaining two candidates** on the same rig at the same conditions. One number is a
+   data point; three are a decision.
+2. **Repeat each material** — enough specimens to put an uncertainty on the figure, because a
+   result with no scatter cannot be argued with or trusted.
+3. **Measure during the run, not only at the ends.** Periodic teardown, or an in-situ measurement
+   of linkage slop, resolves the wear curve instead of its average. That is what determines
+   whether the extrapolation to service life is sound.
+4. **Calibrate the acceleration factor.** One field-returned pin of known service hours, measured
+   by the same volume method, converts the rig from relative comparison to absolute life
+   prediction. Cheapest high-value addition on the list.
+5. **Get the geometry out of the solver.** The MATLAB carries linkage dimensions as bare numbers
+   inside the integration loop and takes run parameters from interactive prompts. Changing the
+   linkage means hunting literals, and a run is not reproducible from the file alone.
+
+---
+
+*Final-year B.E. capstone at MIT College of Engineering, Pune, carried out with Forbes Marshall's
+R&D group, 2017–2018. Built with Maitreya Bhagwat, Prashant Rokade, and Tejas Talele. Materials,
+design pressures, and product data are omitted here as they belong to the sponsor. Happy to talk
+through the method via [contact](/contact).*
