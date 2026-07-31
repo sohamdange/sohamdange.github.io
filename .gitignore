@@ -97,3 +97,8 @@ desktop.ini
 # Claude Code — local machine settings only.
 # .claude/settings.json (shared config) stays tracked.
 .claude/settings.local.json
+
+# Local git hooks — kept out of the repo deliberately.
+# The pre-commit publishing gate lives here on this machine only;
+# it is not distributed with a clone. See CLAUDE.md.
+.githooks/

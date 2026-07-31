@@ -27,7 +27,9 @@ at a guessable path. There is no auth on GitHub Pages.
 * Merging or pushing to `main` — that push deploys to the live site within ~2 minutes
 
 **Automated gate:** `.githooks/pre-commit` runs on every commit.
-* Enable once per clone: `git config core.hooksPath .githooks`
+* This hook is deliberately NOT in the repo — `.githooks/` is gitignored, so it exists only
+  on Soham's machine. A fresh clone has no gate until the file is copied over and
+  `git config core.hooksPath .githooks` is run again. Warn him if he ever clones elsewhere.
 * BLOCKS: documents/archives/CAD/credential file types, credential-shaped strings
   (private keys, `ghp_*`, `AKIA*`, `sk-*`), images with GPS coordinates in EXIF
 * WARNS: draft content, images when `exiftool` is unavailable, files over 2 MB
