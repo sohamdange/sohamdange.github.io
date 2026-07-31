@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ThemeToggle from '@/components/ThemeToggle'
 
 const navLinks = [
   { href: '/projects', label: 'Projects' },
@@ -9,25 +10,29 @@ const navLinks = [
 
 export default function Nav() {
   return (
-    <nav className="border-b border-[#E5E7EB]">
+    <nav className="border-b border-brand-border">
       <div className="max-w-wide mx-auto px-6 md:px-8 py-4 flex items-center justify-between">
         <Link
           href="/"
-          className="font-display text-[#111111] font-semibold hover:text-[#2563EB] focus-visible:outline-none focus-visible:text-[#2563EB] transition-colors"
+          className="font-display text-brand-text font-semibold hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent transition-colors"
         >
           Home
         </Link>
 
-        <div className="flex items-center gap-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm text-[#6B7280] hover:text-[#111111] focus-visible:outline-none focus-visible:text-[#111111] active:text-[#111111] transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm text-brand-muted hover:text-brand-text focus-visible:outline-none focus-visible:text-brand-text active:text-brand-text transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          <ThemeToggle />
         </div>
       </div>
     </nav>

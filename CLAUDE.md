@@ -68,20 +68,60 @@ Both `[slug]` routes fall back to a `_placeholder` slug that 404s when every fil
 
 ## Design Spec (Non-Negotiable)
 * Style: Minimal, editorial, refined — engineering notebook, not a startup landing page
-* Background: `#FFFFFF`
-* Primary text: `#111111`
-* Secondary text: `#6B7280`
-* Accent: `#2563EB`
-* Borders: `#E5E7EB`
 * Body font: A refined serif or geometric sans — NOT Inter, NOT Roboto
 * Code font: JetBrains Mono
 * Max content width: 720px, centered
-* Navigation: Top bar — name on left, links on right (Projects · Writing · About · Contact)
+* Navigation: Top bar — name on left, links on right (Projects · Writing · About · Contact), theme toggle rightmost
 * Footer: GitHub · LinkedIn · © Soham Dange 2025 — one line, minimal
+
+## Theming (Light + Dark)
+
+**The hard rule: never write a raw hex value in a component.** Every color goes through a
+token, or it will not follow the theme. If a component needs a color that no token covers,
+add a token — do not reach for a hex or a default Tailwind color.
+
+Tokens are defined once in `src/app/globals.css` and exposed to Tailwind in
+`tailwind.config.js` as `brand.*`, each mapped to `var(--color-*)`. Use `text-brand-muted`,
+`border-brand-border`, `bg-brand-surface` — never `text-[#6B7280]`.
+
+| Token | Tailwind class | Light | Dark ("Ink") |
+|---|---|---|---|
+| `--color-bg` | `brand-bg` | `#FFFFFF` | `#0F1115` |
+| `--color-surface` | `brand-surface` | `#F9FAFB` | `#16181D` |
+| `--color-text` | `brand-text` | `#111111` | `#E8EAED` |
+| `--color-muted` | `brand-muted` | `#6B7280` | `#9AA1AC` |
+| `--color-accent` | `brand-accent` | `#2563EB` | `#60A5FA` |
+| `--color-accent-hover` | `brand-accent-hover` | `#1D4ED8` | `#93C5FD` |
+| `--color-border` | `brand-border` | `#E5E7EB` | `#24272E` |
+
+The accent is lighter in dark mode on purpose: `#2563EB` only reaches 1.6:1 against `#0F1115`
+and fails WCAG AA. `#60A5FA` clears AAA at 8.0:1. Any new dark value must hit 4.5:1 minimum
+against `--color-bg`.
+
+**How it works**
+* `<html data-theme="light|dark">` selects the token set. Nothing else switches themes.
+* `themeInitScript` (`src/lib/theme.ts`) is injected blocking into `<head>` by `layout.tsx`.
+  It resolves the theme from `localStorage` then `prefers-color-scheme` and sets the
+  attribute **before first paint**. A static export has no server, so without this every
+  dark-mode visitor gets a flash of white on every page load. Do not move it, defer it,
+  or make it `async`.
+* `<html>` carries `suppressHydrationWarning` because that script mutates the attribute
+  before React hydrates. Removing it produces a console error on every load.
+* `ThemeToggle` (`src/components/ThemeToggle.tsx`) is the only client component in the nav.
+  It renders **no theme-dependent markup** — which icon and which accessible label show is
+  decided by CSS off `data-theme` (`.theme-icon-to-dark` / `.theme-icon-to-light`). That is
+  what keeps the correct icon on the first frame with no hydration mismatch and no
+  `mounted` placeholder. If you make the icon depend on React state, you reintroduce both.
+* No stored preference means the OS is followed live — a `matchMedia` listener in the toggle
+  updates an open tab when the system appearance changes. Clicking the toggle writes to
+  `localStorage` and that stored choice wins from then on.
+* Theme switching is instant by design. Do not add a global color transition — it would
+  animate every hover on the site and violates the flat/no-animation rule below.
 
 ## Design Hard Rules
 * No heavy shadows, gradients, or animations — flat, precise, intentional
-* No default Tailwind blue/indigo as primary (use exact `#2563EB` via config)
+* No raw hex values in components — use the `brand-*` tokens (see Theming)
+* No default Tailwind blue/indigo as primary (the accent is `#2563EB`, via the `brand-accent` token)
 * No `transition-all` — ever
 * No same font for headings and body — pair display font with body font
 * Generous whitespace. Typography does the heavy lifting.
@@ -94,9 +134,9 @@ Both `[slug]` routes fall back to a `_placeholder` slug that 404s when every fil
   /projects/[slug].mdx
   /writing/[slug].mdx
 /src
-  /app          — Next.js App Router pages
-  /components   — reusable UI components
-  /lib          — MDX parsing, utilities, shared constants
+  /app          — Next.js App Router pages (globals.css holds the theme tokens)
+  /components   — reusable UI components (ThemeToggle is the only client component in the nav)
+  /lib          — MDX parsing, utilities, shared constants, theme.ts
 /public         — static assets (incl. og-image.png)
 ```
 
@@ -161,7 +201,7 @@ string — both the home page and `WritingList` import the same constant so they
 * Mobile-first responsive
 
 ## Anti-Generic Guardrails
-* Colors: Use the exact brand palette above. Derive tints/shades from `#2563EB` — never default Tailwind palette
+* Colors: Use the `brand-*` tokens. Add a token rather than a one-off hex — never default Tailwind palette
 * Typography: Pair a display/serif with a clean sans. JetBrains Mono for all code
 * Spacing: Intentional, consistent spacing tokens — not random Tailwind steps
 * Surfaces: No decorative layering — this design is flat and intentional by spec
@@ -171,6 +211,7 @@ string — both the home page and `WritingList` import the same constant so they
 * Do not add sections, features, or content not specified in the master prompt
 * Do not "improve" the design spec — implement it exactly
 * Do not use `transition-all`
+* Do not write raw hex colors in components — use the `brand-*` tokens
 * Do not use default Tailwind blue/indigo as primary color
 * Do not use the Next.js Pages Router — use the App Router only
 * Do not break the static export — no server-side features, no API routes that require a Node server
@@ -200,6 +241,8 @@ All pages are fully implemented and deployed to https://sohamdange.github.io
 * Padding: `px-6` mobile, `px-8` desktop on all containers
 * Fonts: Fraunces (display/headings) + Plus Jakarta Sans (body) + JetBrains Mono (code)
 * Nav left link reads "Home" (not "Soham Dange")
+* Light and dark themes, OS-default with a persisted manual toggle — see "Theming" above.
+  All colors run through `brand-*` tokens; there are no raw hex values left in `src/`.
 
 ### Files With Placeholder Content — Needs Real Content
 * `content/projects/afm-simulation.mdx` — all 6 sections marked `[PLACEHOLDER]`

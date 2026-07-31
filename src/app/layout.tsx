@@ -4,6 +4,7 @@ import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import { SITE_URL } from '@/lib/constants'
+import { themeInitScript } from '@/lib/theme'
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -58,10 +59,22 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
+    // themeInitScript sets data-theme on this element before hydration,
+    // which React would otherwise flag as a mismatch.
     <html
       lang="en"
       className={`${fraunces.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/* The toggle cannot do anything without JS, so do not show a dead control. */}
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html: '<style>.theme-toggle{display:none}</style>',
+          }}
+        />
+      </head>
       <body>
         <Nav />
         <main className="min-h-screen">{children}</main>
