@@ -102,3 +102,6 @@ desktop.ini
 # The pre-commit publishing gate lives here on this machine only;
 # it is not distributed with a clone. See CLAUDE.md.
 .githooks/
+
+# Working backlog — local only, not for the public repo.
+TASKS.md

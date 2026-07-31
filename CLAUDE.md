@@ -8,6 +8,9 @@
 
 ## Task list (TASKS.md)
 * `TASKS.md` at the project root is our shared backlog. Read it at the start of each session.
+* It is gitignored and local to Soham's machine — deliberately not in the public repo.
+  If it is missing (fresh clone), the workflow was not abandoned; recreate it and ask him
+  what is on the list. Never commit it.
 * When Soham describes an idea or problem, treat it as **discussion only**. Do NOT add anything to `TASKS.md` until he explicitly says "add it" (or "add to the list").
 * When he says to add a task, first ask for confirmation that it should go on the list. Once confirmed, append exactly ONE concrete, outcome-focused line as a checkbox item — then show him the exact line that was added.
 * When a task is finished, ask him to confirm it is actually complete, then REMOVE that line from `TASKS.md` entirely and tell him what was removed. Do not mark it `[x]` and leave it in the file.
