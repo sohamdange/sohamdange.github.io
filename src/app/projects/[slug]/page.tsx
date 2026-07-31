@@ -3,8 +3,14 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getProject, getProjectSlugs } from '@/lib/mdx'
 import Link from 'next/link'
 
+// Next.js with output:'export' requires at least one static param.
+// If every project is a draft, we supply a placeholder slug that immediately 404s.
+const PLACEHOLDER_SLUG = '_placeholder'
+
 export async function generateStaticParams() {
-  return getProjectSlugs().map((slug) => ({ slug }))
+  const slugs = getProjectSlugs()
+  if (slugs.length === 0) return [{ slug: PLACEHOLDER_SLUG }]
+  return slugs.map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({
@@ -13,6 +19,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  if (slug === PLACEHOLDER_SLUG) return { title: 'Project Not Found' }
   try {
     const { frontmatter } = getProject(slug)
     return {
@@ -30,6 +37,8 @@ export default async function ProjectPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+
+  if (slug === PLACEHOLDER_SLUG) notFound()
 
   const data = (() => {
     try {

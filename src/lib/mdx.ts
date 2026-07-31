@@ -11,6 +11,7 @@ export interface ProjectFrontmatter {
   tags: string[]
   slug: string
   summary: string
+  draft?: boolean
 }
 
 export interface WritingFrontmatter {
@@ -20,12 +21,31 @@ export interface WritingFrontmatter {
   slug: string
   summary: string
   category: string
+  draft?: boolean
+}
+
+// `draft: true` in frontmatter keeps a file out of the build entirely:
+// no list entry, no route, no page in /out. Note that a committed draft is
+// still readable in the public repo — keep genuinely private work in /private/.
+function isPublished(data: Record<string, unknown>): boolean {
+  return data.draft !== true
+}
+
+function readFrontmatter(directory: string, file: string) {
+  const fileContent = fs.readFileSync(path.join(directory, file), 'utf8')
+  return matter(fileContent).data
+}
+
+function publishedFiles(directory: string): string[] {
+  if (!fs.existsSync(directory)) return []
+  return fs
+    .readdirSync(directory)
+    .filter((f) => f.endsWith('.mdx'))
+    .filter((f) => isPublished(readFrontmatter(directory, f)))
 }
 
 export function getAllProjects(): ProjectFrontmatter[] {
-  if (!fs.existsSync(projectsDirectory)) return []
-
-  const files = fs.readdirSync(projectsDirectory).filter((f) => f.endsWith('.mdx'))
+  const files = publishedFiles(projectsDirectory)
 
   return files.map((file) => {
     const filePath = path.join(projectsDirectory, file)
@@ -56,9 +76,7 @@ export function getProject(slug: string): {
 }
 
 export function getAllWriting(): WritingFrontmatter[] {
-  if (!fs.existsSync(writingDirectory)) return []
-
-  const files = fs.readdirSync(writingDirectory).filter((f) => f.endsWith('.mdx'))
+  const files = publishedFiles(writingDirectory)
 
   return files.map((file) => {
     const filePath = path.join(writingDirectory, file)
@@ -89,17 +107,9 @@ export function getWriting(slug: string): {
 }
 
 export function getProjectSlugs(): string[] {
-  if (!fs.existsSync(projectsDirectory)) return []
-  return fs
-    .readdirSync(projectsDirectory)
-    .filter((f) => f.endsWith('.mdx'))
-    .map((f) => f.replace('.mdx', ''))
+  return publishedFiles(projectsDirectory).map((f) => f.replace('.mdx', ''))
 }
 
 export function getWritingSlugs(): string[] {
-  if (!fs.existsSync(writingDirectory)) return []
-  return fs
-    .readdirSync(writingDirectory)
-    .filter((f) => f.endsWith('.mdx'))
-    .map((f) => f.replace('.mdx', ''))
+  return publishedFiles(writingDirectory).map((f) => f.replace('.mdx', ''))
 }

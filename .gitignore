@@ -1,3 +1,10 @@
+# ─────────────────────────────────────────────────────────────
+# This repo is PUBLIC and every committed file is world-readable,
+# both on github.com and (for /public and /content) as a live URL
+# on sohamdange.github.io. Ignoring a file here only prevents
+# FUTURE commits — it does not remove anything already in history.
+# ─────────────────────────────────────────────────────────────
+
 # Dependencies
 node_modules/
 
@@ -5,14 +12,88 @@ node_modules/
 .next/
 out/
 
+# TypeScript incremental build cache
+*.tsbuildinfo
+
 # Environment files
 .env
-.env.local
+.env*.local
 .env.production
+
+# Credentials and keys — never publish
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+id_rsa*
+*.credentials.json
+serviceAccount*.json
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Staging area for anything NOT meant to be published.
+# Drop drafts, resumes, scans, client work, or reference files here —
+# nothing in this folder can be committed or deployed by accident.
+/private/
+
+# Personal documents — resumes, transcripts, scans, letters.
+# A PDF in /public is fetchable at a guessable URL even if no page
+# links to it. Use `git add -f <file>` to publish one deliberately.
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+
+# Archives — usually an accidental drag-and-drop, not site content
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+
+# CAD, simulation, and analysis artifacts.
+# Often large, and often covered by employer/university IP terms.
+# Publish a specific one with `git add -f <file>`.
+*.step
+*.stp
+*.iges
+*.igs
+*.sldprt
+*.sldasm
+*.slddrw
+*.catpart
+*.catproduct
+*.prt
+*.ipt
+*.iam
+*.f3d
+*.dwg
+*.dxf
+*.cdb
+*.db
+*.rst
+*.rth
+*.f06
+*.odb
+*.inp
+*.cas
+*.dat.gz
 
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Editor
 .vscode/
+.idea/
+
+# Claude Code — local machine settings only.
+# .claude/settings.json (shared config) stays tracked.
+.claude/settings.local.json
