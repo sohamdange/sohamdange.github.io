@@ -268,6 +268,6 @@ export const achievements: AchievementEntry[] = [
     title: 'National Chess Player',
     period: '2008 – 2013',
     description:
-      'Represented Maharashtra state at national-level tournaments; achieved a peak international ELO rating of 1634.',
+      'Represented Maharashtra state at national-level tournaments; achieved a peak international ELO rating of 1780.',
   },
 ]
