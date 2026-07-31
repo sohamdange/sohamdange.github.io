@@ -71,7 +71,9 @@ Both `[slug]` routes fall back to a `_placeholder` slug that 404s when every fil
 * Body font: A refined serif or geometric sans — NOT Inter, NOT Roboto
 * Code font: JetBrains Mono
 * Max content width: 720px, centered
-* Navigation: Top bar — name on left, links on right (Projects · Writing · About · Contact), theme toggle rightmost
+* Navigation: Top bar — name on left, links on right (Projects · Writing · Resume · About · Contact), theme toggle rightmost.
+  Ordered work artifacts → credentials → contact. Five links plus the toggle overflow a 375px
+  viewport at `gap-6`, so the link group tightens to `gap-x-4` on mobile and is allowed to wrap.
 * Footer: GitHub · LinkedIn · © Soham Dange 2025 — one line, minimal
 
 ## Theming (Light + Dark)
@@ -144,10 +146,11 @@ against `--color-bg`.
 | Route | Description |
 |---|---|
 | `/` | Home — hero, featured projects, recent writing |
-| `/projects` | Project list |
+| `/projects` | Featured Projects — a curated list, not everything Soham has worked on |
 | `/projects/[slug]` | Individual project (MDX) |
 | `/writing` | Writing list with category filter tabs (empty state at launch) |
 | `/writing/[slug]` | Individual post (MDX) |
+| `/resume` | Resume — rendered from `src/lib/resume.ts`, no PDF |
 | `/about` | About page |
 | `/contact` | Contact — no form, just links |
 | `not-found.tsx` | Styled 404 with links to every route |
@@ -171,6 +174,23 @@ string — both the home page and `WritingList` import the same constant so they
 * Adding content workflow: Create an MDX file in the correct folder → done. No other steps.
 * Unfinished content: add `draft: true` to the frontmatter — see "Draft Content" above.
 * Promote to the home page: add `featured: true`. Never hardcode slugs in a component.
+
+### Resume
+The resume is **data, not MDX** — `src/lib/resume.ts` exports `experience`, `education`,
+`skills`, and `achievements`, and `src/app/resume/page.tsx` renders them. The page holds no
+content of its own; add a job by adding an object, never by editing JSX.
+
+* **No contact details on this page, ever** — no address, phone, email, or LinkedIn. The page
+  is public and permanent, and `/contact` is already the single place those live.
+* Dates are stored as `YYYY-MM` (`end: null` means current) and formatted by `formatPeriod()`.
+  Do not hand-write display strings — that is how a resume drifts out of alignment.
+  `formatMonth()` parses by hand rather than via `new Date()`, which reads `YYYY-MM` as UTC
+  midnight and can roll back a month once the local timezone is applied.
+* Entries are listed newest first in the file itself, so the page never sorts.
+* `projectSlug` on an entry renders a link to `/projects/[slug]`. This is the whole reason the
+  resume is a page and not a PDF — keep the slug valid or drop the field.
+* Bullets are capped at **3 per role** by editorial decision, not by code. The PDF is the
+  exhaustive artifact; this page is the scannable one that links out to depth.
 
 ### Dates
 * **Projects: `date` is when the work was done**, not when it was added to the site. The year
@@ -225,12 +245,13 @@ All pages are fully implemented and deployed to https://sohamdange.github.io
 | Page | Status |
 |---|---|
 | `/` | Built — hero, 2 featured project cards, empty writing state |
-| `/projects` | Built — lists all 3 projects |
+| `/projects` | Built — titled "Featured Projects", lists all 3 |
 | `/projects/afm-simulation` | Built — placeholder content |
 | `/projects/oxygen-concentrator` | Built — placeholder content |
 | `/projects/condensate-pump-test-rig` | Built — placeholder content |
 | `/writing` | Built — category filter tabs, empty state message |
 | `/writing/[slug]` | Built — route ready, no posts yet |
+| `/resume` | Built — real content, from `src/lib/resume.ts` |
 | `/about` | Built — real content |
 | `/contact` | Built — placeholder links |
 

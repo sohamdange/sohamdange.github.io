@@ -22,6 +22,7 @@ export default function NotFound() {
           { href: '/', label: 'Home' },
           { href: '/projects', label: 'Projects' },
           { href: '/writing', label: 'Writing' },
+          { href: '/resume', label: 'Resume' },
           { href: '/about', label: 'About' },
           { href: '/contact', label: 'Contact' },
         ].map((link) => (

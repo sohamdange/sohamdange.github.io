@@ -4,6 +4,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 const navLinks = [
   { href: '/projects', label: 'Projects' },
   { href: '/writing', label: 'Writing' },
+  { href: '/resume', label: 'Resume' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ]
@@ -20,7 +21,9 @@ export default function Nav() {
         </Link>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-6">
+          {/* Five links plus the toggle overflow a 375px viewport at gap-6,
+              so the gap tightens on mobile and the group wraps as a last resort. */}
+          <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1 sm:gap-x-6">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
