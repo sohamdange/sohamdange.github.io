@@ -6,14 +6,23 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // Every brand color resolves through a CSS variable defined in
+      // globals.css, so `data-theme` on <html> reskins the whole site.
+      // Do not put hex values here — they would not follow the theme.
       colors: {
         brand: {
-          bg: '#FFFFFF',
-          text: '#111111',
-          muted: '#6B7280',
-          accent: '#2563EB',
-          border: '#E5E7EB',
+          bg: 'var(--color-bg)',
+          surface: 'var(--color-surface)',
+          text: 'var(--color-text)',
+          muted: 'var(--color-muted)',
+          accent: 'var(--color-accent)',
+          'accent-hover': 'var(--color-accent-hover)',
+          border: 'var(--color-border)',
         },
+      },
+      // Tailwind's preflight hardcodes #e5e7eb for a bare `border`.
+      borderColor: {
+        DEFAULT: 'var(--color-border)',
       },
       fontFamily: {
         display: ['var(--font-fraunces)', 'Georgia', 'serif'],

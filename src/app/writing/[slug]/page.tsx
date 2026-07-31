@@ -57,26 +57,26 @@ export default async function WritingPostPage({
       {/* Back link */}
       <Link
         href="/writing"
-        className="text-sm text-[#6B7280] hover:text-[#111111] focus-visible:outline-none focus-visible:text-[#111111] transition-colors mb-10 inline-block"
+        className="text-sm text-brand-muted hover:text-brand-text focus-visible:outline-none focus-visible:text-brand-text transition-colors mb-10 inline-block"
       >
         ← Writing
       </Link>
 
       {/* Header */}
       <header className="mt-6 mb-12">
-        <p className="text-sm text-[#6B7280] mb-2">{frontmatter.category}</p>
+        <p className="text-sm text-brand-muted mb-2">{frontmatter.category}</p>
 
-        <h1 className="font-display text-4xl text-[#111111] tracking-display leading-tight mb-4">
+        <h1 className="font-display text-4xl text-brand-text tracking-display leading-tight mb-4">
           {frontmatter.title}
         </h1>
 
         <div className="flex items-center gap-4 flex-wrap">
-          <time className="text-sm text-[#6B7280]">{frontmatter.date}</time>
+          <time className="text-sm text-brand-muted">{frontmatter.date}</time>
           <div className="flex flex-wrap gap-2">
             {frontmatter.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-xs text-[#6B7280] border border-[#E5E7EB] px-2 py-0.5"
+                className="text-xs text-brand-muted border border-brand-border px-2 py-0.5"
               >
                 {tag}
               </span>
@@ -85,7 +85,7 @@ export default async function WritingPostPage({
         </div>
       </header>
 
-      <hr className="border-[#E5E7EB] mb-12" />
+      <hr className="border-brand-border mb-12" />
 
       {/* MDX Content */}
       <article className="article-prose">

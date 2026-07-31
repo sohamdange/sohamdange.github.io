@@ -42,10 +42,10 @@ export default function WritingList({ posts }: WritingListProps) {
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`text-sm px-3 py-1.5 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] transition-colors ${
+            className={`text-sm px-3 py-1.5 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent transition-colors ${
               activeCategory === cat
-                ? 'border-[#2563EB] text-[#2563EB]'
-                : 'border-[#E5E7EB] text-[#6B7280] hover:text-[#111111] hover:border-[#111111] active:text-[#111111]'
+                ? 'border-brand-accent text-brand-accent'
+                : 'border-brand-border text-brand-muted hover:text-brand-text hover:border-brand-text active:text-brand-text'
             }`}
           >
             {cat}
@@ -55,22 +55,22 @@ export default function WritingList({ posts }: WritingListProps) {
 
       {/* Posts or empty state */}
       {filtered.length === 0 ? (
-        <p className="text-[#6B7280]">{WRITING_EMPTY_STATE}</p>
+        <p className="text-brand-muted">{WRITING_EMPTY_STATE}</p>
       ) : (
-        <div className="flex flex-col divide-y divide-[#E5E7EB]">
+        <div className="flex flex-col divide-y divide-brand-border">
           {filtered.map((post) => (
             <Link
               key={post.slug}
               href={`/writing/${post.slug}`}
-              className="py-6 group focus-visible:outline-none focus-visible:text-[#2563EB]"
+              className="py-6 group focus-visible:outline-none focus-visible:text-brand-accent"
             >
               <div className="flex items-start justify-between mb-2">
-                <h2 className="font-display text-[#111111] text-lg leading-snug group-hover:text-[#2563EB] transition-colors">
+                <h2 className="font-display text-brand-text text-lg leading-snug group-hover:text-brand-accent transition-colors">
                   {post.title}
                 </h2>
-                <time className="text-sm text-[#6B7280] ml-6 shrink-0">{post.date}</time>
+                <time className="text-sm text-brand-muted ml-6 shrink-0">{post.date}</time>
               </div>
-              <p className="text-sm text-[#6B7280] leading-relaxed">{post.summary}</p>
+              <p className="text-sm text-brand-muted leading-relaxed">{post.summary}</p>
             </Link>
           ))}
         </div>

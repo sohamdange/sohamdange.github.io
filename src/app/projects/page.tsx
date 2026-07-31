@@ -11,8 +11,8 @@ export default function ProjectsPage() {
 
   return (
     <div className="max-w-wide mx-auto px-6 md:px-8 py-16">
-      <h1 className="font-display text-4xl text-[#111111] tracking-display mb-3">Projects</h1>
-      <p className="text-[#6B7280] mb-12">
+      <h1 className="font-display text-4xl text-brand-text tracking-display mb-3">Projects</h1>
+      <p className="text-brand-muted mb-12">
         Engineering work at the intersection of simulation, systems design, and hardware.
       </p>
 

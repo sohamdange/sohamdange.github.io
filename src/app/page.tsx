@@ -15,11 +15,11 @@ export default function Home() {
     <div className="max-w-wide mx-auto px-6 md:px-8 py-16">
       {/* Hero */}
       <section className="mb-20">
-        <h1 className="font-display text-5xl text-[#111111] tracking-display leading-tight mb-3">
+        <h1 className="font-display text-5xl text-brand-text tracking-display leading-tight mb-3">
           Soham Dange
         </h1>
-        <p className="text-[#6B7280] text-base mb-6">Mechanical Engineer</p>
-        <p className="text-[#111111] text-lg leading-reading max-w-[540px]">
+        <p className="text-brand-muted text-base mb-6">Mechanical Engineer</p>
+        <p className="text-brand-text text-lg leading-reading max-w-[540px]">
           Systems thinker. Tool builder. I work at the intersection of simulation and
           engineering architecture.
         </p>
@@ -28,12 +28,12 @@ export default function Home() {
       {/* Featured Projects */}
       <section className="mb-20">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-xl text-[#111111] tracking-display">
+          <h2 className="font-display text-xl text-brand-text tracking-display">
             Featured Projects
           </h2>
           <Link
             href="/projects"
-            className="text-sm text-[#6B7280] hover:text-[#2563EB] focus-visible:outline-none focus-visible:text-[#2563EB] active:text-[#2563EB] transition-colors"
+            className="text-sm text-brand-muted hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent active:text-brand-accent transition-colors"
           >
             All projects →
           </Link>
@@ -56,20 +56,20 @@ export default function Home() {
       {/* Recent Writing */}
       <section>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-xl text-[#111111] tracking-display">
+          <h2 className="font-display text-xl text-brand-text tracking-display">
             Recent Writing
           </h2>
           <Link
             href="/writing"
-            className="text-sm text-[#6B7280] hover:text-[#2563EB] focus-visible:outline-none focus-visible:text-[#2563EB] active:text-[#2563EB] transition-colors"
+            className="text-sm text-brand-muted hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent active:text-brand-accent transition-colors"
           >
             All writing →
           </Link>
         </div>
         {recentWriting.length === 0 ? (
-          <p className="text-[#6B7280] text-sm">{WRITING_EMPTY_STATE}</p>
+          <p className="text-brand-muted text-sm">{WRITING_EMPTY_STATE}</p>
         ) : (
-          <div className="flex flex-col divide-y divide-[#E5E7EB]">
+          <div className="flex flex-col divide-y divide-brand-border">
             {recentWriting.map((post) => (
               <Link
                 key={post.slug}
@@ -77,10 +77,10 @@ export default function Home() {
                 className="py-5 group focus-visible:outline-none"
               >
                 <div className="flex items-start justify-between gap-6">
-                  <h3 className="font-display text-[#111111] text-base leading-snug group-hover:text-[#2563EB] group-focus-visible:text-[#2563EB] transition-colors">
+                  <h3 className="font-display text-brand-text text-base leading-snug group-hover:text-brand-accent group-focus-visible:text-brand-accent transition-colors">
                     {post.title}
                   </h3>
-                  <time className="font-mono text-xs text-[#6B7280] shrink-0 mt-1">
+                  <time className="font-mono text-xs text-brand-muted shrink-0 mt-1">
                     {post.date}
                   </time>
                 </div>

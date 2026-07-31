@@ -15,13 +15,13 @@ export default function ProjectCard({ title, slug, tags, summary, date }: Projec
   return (
     <Link
       href={`/projects/${slug}`}
-      className="block border border-[#E5E7EB] p-6 hover:border-[#2563EB] focus-visible:outline-none focus-visible:border-[#2563EB] active:border-[#2563EB] transition-colors group"
+      className="block border border-brand-border p-6 hover:border-brand-accent focus-visible:outline-none focus-visible:border-brand-accent active:border-brand-accent transition-colors group"
     >
       {year && (
-        <p className="font-mono text-xs text-[#6B7280] mb-2">{year}</p>
+        <p className="font-mono text-xs text-brand-muted mb-2">{year}</p>
       )}
 
-      <h3 className="font-display text-[#111111] text-lg leading-snug mb-3 group-hover:text-[#2563EB] transition-colors">
+      <h3 className="font-display text-brand-text text-lg leading-snug mb-3 group-hover:text-brand-accent transition-colors">
         {title}
       </h3>
 
@@ -29,14 +29,14 @@ export default function ProjectCard({ title, slug, tags, summary, date }: Projec
         {tags.map((tag) => (
           <span
             key={tag}
-            className="text-xs text-[#6B7280] border border-[#E5E7EB] px-2 py-0.5"
+            className="text-xs text-brand-muted border border-brand-border px-2 py-0.5"
           >
             {tag}
           </span>
         ))}
       </div>
 
-      <p className="text-sm text-[#6B7280] leading-relaxed">{summary}</p>
+      <p className="text-sm text-brand-muted leading-relaxed">{summary}</p>
     </Link>
   )
 }

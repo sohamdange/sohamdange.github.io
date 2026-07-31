@@ -5,9 +5,9 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <div className="max-w-wide mx-auto px-6 md:px-8 py-16">
-      <h1 className="font-display text-4xl text-[#111111] tracking-display mb-12">About</h1>
+      <h1 className="font-display text-4xl text-brand-text tracking-display mb-12">About</h1>
 
-      <div className="space-y-5 text-[#111111] leading-reading text-base">
+      <div className="space-y-5 text-brand-text leading-reading text-base">
         <p>
           I&apos;m a mechanical engineer who builds tools. Not because it&apos;s the harder path,
           but because tools scale — a well-designed tool solves a problem once and keeps solving it.

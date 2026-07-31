@@ -57,7 +57,7 @@ export default async function ProjectPage({
       {/* Back link */}
       <Link
         href="/projects"
-        className="text-sm text-[#6B7280] hover:text-[#111111] focus-visible:outline-none focus-visible:text-[#111111] transition-colors mb-10 inline-block"
+        className="text-sm text-brand-muted hover:text-brand-text focus-visible:outline-none focus-visible:text-brand-text transition-colors mb-10 inline-block"
       >
         ← Projects
       </Link>
@@ -68,21 +68,21 @@ export default async function ProjectPage({
           {frontmatter.tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs text-[#6B7280] border border-[#E5E7EB] px-2 py-0.5"
+              className="text-xs text-brand-muted border border-brand-border px-2 py-0.5"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        <h1 className="font-display text-4xl text-[#111111] tracking-display leading-tight mb-4">
+        <h1 className="font-display text-4xl text-brand-text tracking-display leading-tight mb-4">
           {frontmatter.title}
         </h1>
 
-        <p className="text-[#6B7280] text-lg leading-reading">{frontmatter.summary}</p>
+        <p className="text-brand-muted text-lg leading-reading">{frontmatter.summary}</p>
       </header>
 
-      <hr className="border-[#E5E7EB] mb-12" />
+      <hr className="border-brand-border mb-12" />
 
       {/* MDX Content */}
       <article className="article-prose">
