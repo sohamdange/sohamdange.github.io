@@ -191,6 +191,15 @@ content of its own; add a job by adding an object, never by editing JSX.
   resume is a page and not a PDF — keep the slug valid or drop the field.
 * Bullets are capped at **3 per role** by editorial decision, not by code. The PDF is the
   exhaustive artifact; this page is the scannable one that links out to depth.
+* Section headings and the section rail both read from `resumeSections` in `resume.ts`, so a
+  renamed section cannot leave a dead anchor. `sectionFor()` in the page throws at build time
+  if an id goes missing — a broken rail link fails the build instead of shipping.
+* `ResumeNav` (`src/components/ResumeNav.tsx`) is the page's only client component. It exists
+  purely for the active-section highlight, via `IntersectionObserver`. Links are plain anchors,
+  so the rail still works with JS off — only the highlight is lost. Initial state is the first
+  section on both server and client, so there is no hydration mismatch. Jumps are native and
+  instant; do not add `scroll-behavior: smooth` (see the no-animation rule).
+* Layout is a sticky rail from `lg` up, a wrapping row above the content below that.
 
 ### Dates
 * **Projects: `date` is when the work was done**, not when it was added to the site. The year

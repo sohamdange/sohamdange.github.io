@@ -12,6 +12,24 @@ export interface ResumeLink {
   href: string
 }
 
+export interface ResumeSection {
+  /** Doubles as the anchor target and the `id` on the rendered <section>. */
+  id: string
+  label: string
+}
+
+/**
+ * The section rail and the section headings both read from this, so a
+ * renamed section cannot leave a dead anchor behind. Module-level so its
+ * identity is stable across renders — `ResumeNav` observes it in an effect.
+ */
+export const resumeSections: ResumeSection[] = [
+  { id: 'work-experience', label: 'Work Experience' },
+  { id: 'education', label: 'Education' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'leadership', label: 'Leadership & Achievements' },
+]
+
 export interface ExperienceEntry {
   company: string
   role: string
@@ -81,7 +99,7 @@ export const experience: ExperienceEntry[] = [
   {
     company: 'Generac Clean Energy Solutions',
     role: 'Senior Mechanical Engineer',
-    location: 'Reno, USA',
+    location: 'Reno, Nevada, USA',
     start: '2024-07',
     end: null,
     bullets: [
@@ -93,7 +111,7 @@ export const experience: ExperienceEntry[] = [
   {
     company: 'Our Next Energy (ONE)',
     role: 'Research & Advanced Engineering Intern — Simulations Team',
-    location: 'Michigan, USA',
+    location: 'Novi, Michigan, USA',
     start: '2023-06',
     end: '2023-08',
     bullets: [
@@ -105,7 +123,7 @@ export const experience: ExperienceEntry[] = [
   {
     company: 'Hokie Electric Vehicle Team (EcoCAR EV Challenge)',
     role: 'Project Manager & Propulsion Modeling Team Member',
-    location: 'Virginia, USA',
+    location: 'Blacksburg, Virginia, USA',
     start: '2022-08',
     end: '2024-05',
     bullets: [
@@ -117,7 +135,7 @@ export const experience: ExperienceEntry[] = [
   {
     company: 'Chemdist Membrane Systems Pvt. Ltd.',
     role: 'Senior Mechanical Engineer — R&D Department',
-    location: 'Pune, India',
+    location: 'Pune, Maharashtra, India',
     start: '2021-03',
     end: '2022-05',
     bullets: [
@@ -130,7 +148,7 @@ export const experience: ExperienceEntry[] = [
   {
     company: 'Exa Mobility India Pvt. Ltd.',
     role: 'Mechanical Design Engineer — EV R&D Department',
-    location: 'Pune, India',
+    location: 'Pune, Maharashtra, India',
     start: '2020-01',
     end: '2021-02',
     bullets: [
@@ -142,7 +160,7 @@ export const experience: ExperienceEntry[] = [
   {
     company: 'FEV India Pvt. Ltd.',
     role: 'Mechanical Design Engineer — Design and CAE Department',
-    location: 'Pune, India',
+    location: 'Pune, Maharashtra, India',
     start: '2018-12',
     end: '2019-12',
     bullets: [
@@ -157,7 +175,7 @@ export const education: EducationEntry[] = [
   {
     institution: 'Virginia Tech',
     degree: 'Master of Science in Mechanical Engineering',
-    location: 'Virginia, USA',
+    location: 'Blacksburg, Virginia, USA',
     start: '2022-08',
     end: '2024-05',
     highlight: {
@@ -183,7 +201,7 @@ export const education: EducationEntry[] = [
   {
     institution: 'Savitribai Phule Pune University',
     degree: 'Bachelor of Engineering in Mechanical Engineering',
-    location: 'Maharashtra, India',
+    location: 'Pune, Maharashtra, India',
     start: '2014-08',
     end: '2018-05',
     highlight: {

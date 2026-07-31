@@ -1,22 +1,36 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
+import ResumeNav from '@/components/ResumeNav'
 import {
   achievements,
   education,
   experience,
   formatPeriod,
+  resumeSections,
   skills,
+  type ResumeSection,
 } from '@/lib/resume'
 
 export const metadata = {
   title: 'Resume',
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+/**
+ * Headings are looked up rather than written out, so the rail and the page
+ * cannot disagree. An id removed from `resumeSections` fails the build here
+ * instead of shipping a rail link that scrolls nowhere.
+ */
+function sectionFor(id: string): ResumeSection {
+  const section = resumeSections.find((entry) => entry.id === id)
+  if (!section) throw new Error(`Unknown resume section: "${id}"`)
+  return section
+}
+
+function Section({ section, children }: { section: ResumeSection; children: ReactNode }) {
   return (
-    <section className="mb-16 last:mb-0">
+    <section id={section.id} className="mb-16 last:mb-0 scroll-mt-10">
       <h2 className="font-display text-xl text-brand-text tracking-display border-b border-brand-border pb-2 mb-8">
-        {title}
+        {section.label}
       </h2>
       {children}
     </section>
@@ -79,96 +93,104 @@ export default function ResumePage() {
     <div className="max-w-wide mx-auto px-6 md:px-8 py-16">
       <h1 className="font-display text-4xl text-brand-text tracking-display mb-12">Resume</h1>
 
-      <Section title="Work Experience">
-        <div className="space-y-10">
-          {experience.map((entry) => (
-            <article key={`${entry.company}-${entry.start}`}>
-              <EntryHeading
-                name={entry.company}
-                role={entry.role}
-                location={entry.location}
-                period={formatPeriod(entry.start, entry.end)}
-              />
-              <Bullets items={entry.bullets} />
-              {entry.projectSlug && <ProjectLink slug={entry.projectSlug} />}
-            </article>
-          ))}
-        </div>
-      </Section>
+      <div className="lg:flex lg:items-start lg:gap-14">
+        <ResumeNav />
 
-      <Section title="Education">
-        <div className="space-y-10">
-          {education.map((entry) => (
-            <article key={entry.institution}>
-              <EntryHeading
-                name={entry.institution}
-                role={entry.degree}
-                location={entry.location}
-                period={formatPeriod(entry.start, entry.end)}
-              />
-
-              {entry.highlight && (
-                <p className="text-sm text-brand-text leading-reading mb-3">
-                  <span className="text-brand-muted">{entry.highlight.label}: </span>
-                  <em>{entry.highlight.title}</em>
-                  {entry.highlight.links?.map((link) => (
-                    <span key={link.href}>
-                      {' · '}
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-brand-accent hover:text-brand-accent-hover focus-visible:outline-none focus-visible:text-brand-accent-hover active:text-brand-accent-hover transition-colors underline underline-offset-2"
-                      >
-                        {link.label}
-                      </a>
-                    </span>
-                  ))}
-                </p>
-              )}
-
-              <Bullets items={entry.bullets} />
-              {entry.projectSlug && <ProjectLink slug={entry.projectSlug} />}
-            </article>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Skills">
-        <dl className="space-y-6">
-          {skills.map((group) => (
-            <div key={group.label} className="flex flex-col sm:flex-row sm:gap-8">
-              <dt className="font-mono text-xs text-brand-muted mb-1 sm:mb-0 sm:w-52 sm:shrink-0 sm:pt-1">
-                {group.label}
-              </dt>
-              <dd className="text-sm text-brand-text leading-reading">
-                {group.items.join(' · ')}
-              </dd>
+        <div className="min-w-0 lg:flex-1">
+          <Section section={sectionFor('work-experience')}>
+            <div className="space-y-10">
+              {experience.map((entry) => (
+                <article key={`${entry.company}-${entry.start}`}>
+                  <EntryHeading
+                    name={entry.company}
+                    role={entry.role}
+                    location={entry.location}
+                    period={formatPeriod(entry.start, entry.end)}
+                  />
+                  <Bullets items={entry.bullets} />
+                  {entry.projectSlug && <ProjectLink slug={entry.projectSlug} />}
+                </article>
+              ))}
             </div>
-          ))}
-        </dl>
-      </Section>
+          </Section>
 
-      <Section title="Leadership & Achievements">
-        <div className="space-y-8">
-          {achievements.map((entry) => (
-            <article key={entry.title}>
-              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
-                <h3 className="font-display text-base text-brand-text">
-                  {entry.title}
-                  {entry.organization && (
-                    <span className="text-brand-muted"> — {entry.organization}</span>
+          <Section section={sectionFor('education')}>
+            <div className="space-y-10">
+              {education.map((entry) => (
+                <article key={entry.institution}>
+                  <EntryHeading
+                    name={entry.institution}
+                    role={entry.degree}
+                    location={entry.location}
+                    period={formatPeriod(entry.start, entry.end)}
+                  />
+
+                  {entry.highlight && (
+                    <p className="text-sm text-brand-text leading-reading mb-3">
+                      <span className="text-brand-muted">{entry.highlight.label}: </span>
+                      <em>{entry.highlight.title}</em>
+                      {entry.highlight.links?.map((link) => (
+                        <span key={link.href}>
+                          {' · '}
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-brand-accent hover:text-brand-accent-hover focus-visible:outline-none focus-visible:text-brand-accent-hover active:text-brand-accent-hover transition-colors underline underline-offset-2"
+                          >
+                            {link.label}
+                          </a>
+                        </span>
+                      ))}
+                    </p>
                   )}
-                </h3>
-                <span className="font-mono text-xs text-brand-muted sm:shrink-0">
-                  {entry.period}
-                </span>
-              </div>
-              <p className="text-sm text-brand-muted leading-reading mt-1">{entry.description}</p>
-            </article>
-          ))}
+
+                  <Bullets items={entry.bullets} />
+                  {entry.projectSlug && <ProjectLink slug={entry.projectSlug} />}
+                </article>
+              ))}
+            </div>
+          </Section>
+
+          <Section section={sectionFor('skills')}>
+            <dl className="space-y-6">
+              {skills.map((group) => (
+                <div key={group.label} className="flex flex-col sm:flex-row sm:gap-8">
+                  <dt className="font-mono text-xs text-brand-muted mb-1 sm:mb-0 sm:w-52 sm:shrink-0 sm:pt-1">
+                    {group.label}
+                  </dt>
+                  <dd className="text-sm text-brand-text leading-reading">
+                    {group.items.join(' · ')}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Section>
+
+          <Section section={sectionFor('leadership')}>
+            <div className="space-y-8">
+              {achievements.map((entry) => (
+                <article key={entry.title}>
+                  <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+                    <h3 className="font-display text-base text-brand-text">
+                      {entry.title}
+                      {entry.organization && (
+                        <span className="text-brand-muted"> — {entry.organization}</span>
+                      )}
+                    </h3>
+                    <span className="font-mono text-xs text-brand-muted sm:shrink-0">
+                      {entry.period}
+                    </span>
+                  </div>
+                  <p className="text-sm text-brand-muted leading-reading mt-1">
+                    {entry.description}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </Section>
         </div>
-      </Section>
+      </div>
     </div>
   )
 }
