@@ -1,6 +1,13 @@
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+// Imported on the route, not in layout.tsx: Next then emits it as a separate
+// 25 kB chunk that only project pages request. In the layout it lands in the
+// shared bundle and every page on the site pays for it.
+import 'katex/dist/katex.min.css'
 import { getProject, getProjectSlugs } from '@/lib/mdx'
+import { mdxComponents } from '@/lib/mdx-components'
 import Link from 'next/link'
 
 // Next.js with output:'export' requires at least one static param.
@@ -84,9 +91,21 @@ export default async function ProjectPage({
 
       <hr className="border-brand-border mb-12" />
 
-      {/* MDX Content */}
+      {/* MDX Content.
+          remark-math parses $…$ and $$…$$; rehype-katex renders it at build
+          time, so the page ships plain markup and no client-side math runtime.
+          KaTeX inherits `color`, which is how the equations follow the theme. */}
       <article className="article-prose">
-        <MDXRemote source={content} />
+        <MDXRemote
+          source={content}
+          components={mdxComponents}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkMath],
+              rehypePlugins: [rehypeKatex],
+            },
+          }}
+        />
       </article>
     </div>
   )

@@ -1,35 +1,201 @@
 ---
-title: Modeling and Numerical Simulation of Atomic Force Microscope
-date: 2024-01-01
+title: Modeling and Numerical Simulation of an Atomic Force Microscope
+date: 2023-05-01
 tags:
   - Simulation
   - Numerical Methods
-  - Mechanical Systems
+  - MATLAB
+  - MEMS
 slug: afm-simulation
 featured: true
-summary: Built a numerical model of an AFM cantilever system to simulate dynamic behavior. Focused on solver architecture, numerical stability, and understanding how physical assumptions translate into simulation design.
+summary: A tapping-mode AFM cantilever modeled as a driven, damped oscillator and solved in MATLAB. Six ODE solvers were scored against the closed-form linear solution before any nonlinearity was added. ode78 came out roughly fifty times more accurate, and that ranking is what makes the contact-regime results worth believing.
 ---
 
 ## Problem Definition
 
-[PLACEHOLDER] Describe the engineering problem that motivated this project. What physical phenomenon were you trying to understand or predict? What made it non-trivial — nonlinearity, scale effects, coupled dynamics? What would a successful simulation let you do that you couldn't do otherwise?
+A tapping-mode atomic force microscope reads a surface indirectly. It holds a cantilever
+oscillating near resonance, brings the tip to within nanometers of the sample, and infers
+the topography from how the oscillation amplitude changes. Nothing touches a ruler. The
+measurement is only as good as the relationship between separation and amplitude, so that
+relationship is the thing worth simulating.
+
+The cantilever itself is unremarkable: a 41.6 N/m beam at 388.6 kHz with a quality factor
+of 300, swinging 20 nm when nothing is near it. The tip–surface force is what makes the
+problem hard.
+
+- It is **piecewise**. Above contact only van der Waals attraction acts; below it, elastic
+  repulsion takes over.
+- It is **strongly nonlinear**: attraction falls off as the inverse square of the gap,
+  repulsion rises as the three-halves power of the indentation.
+- It turns the system **stiff**. The force changes by orders of magnitude over a few
+  ångström of travel while the drive period stays fixed.
+- The system is **non-autonomous**, because the drive is an explicit function of time.
+
+<ForceLawFigure />
+
+Which leaves the question the simulation exists to answer: across the separations an AFM
+actually operates at, which part of that force shows up in the amplitude signal at all?
 
 ## Architecture Overview
 
-[PLACEHOLDER] Describe the high-level structure of the simulation system. What are the major components — the physical model, the numerical solver, the parameter space, the output pipeline? How do they connect? Include any diagrams or schematics that clarify the architecture.
+The cantilever is reduced to a point mass on a spring, one mode and one degree of freedom,
+then non-dimensionalized before anything is solved. Position is scaled by the free
+amplitude A<sub>0</sub> = 20 nm and time by 1/ω<sub>0</sub>, which gives a two-state
+first-order system:
+
+$$
+\begin{aligned}
+\dot{x}_1 &= x_2 \\
+\dot{x}_2 &= \lambda F_D(\tau) + \xi F_{ts}(x_1) - \alpha x_2 - \beta x_1
+\end{aligned}
+$$
+
+with four groups carrying every physical parameter:
+
+$$
+\lambda = \frac{1}{m \omega_0^2 A_0}, \qquad
+\alpha = \frac{\gamma}{m \omega_0} = \frac{1}{Q}, \qquad
+\beta = 1, \qquad
+\xi = \lambda
+$$
+
+and a drive detuned just below resonance:
+
+$$
+F_D(\tau) = F_0 \cos\!\left(\frac{\omega_D}{\omega_0}\, \tau\right)
+$$
+
+The scaling has a useful consequence. The drive amplitude works out to
+
+$$
+\lambda F_0 = \frac{F_0}{m \omega_0^2 A_0} = \frac{1}{300} = \frac{1}{Q} = \alpha
+$$
+
+so the resonant steady-state response is exactly 1. Every amplitude in the results reads
+directly as a fraction of free swing, and the analytical check returning 0.9986 instead of
+1.0000 is a test of the scaling itself, not just of the solver.
+
+F<sub>ts</sub> is then introduced in three deliberate tiers, each adding exactly one thing:
+
+1. **F<sub>ts</sub> = 0.** Linear, and solvable in closed form. This tier exists only to
+   validate the solver.
+2. **van der Waals only.** Hamaker constant 6×10⁻²⁰ J, tip radius 20 nm. Nonlinear, but
+   the tip never reaches the surface.
+3. **Full model.** van der Waals plus Hertzian contact through an effective modulus of
+   50 GPa. Piecewise, stiff, and the only tier that represents a real measurement.
+
+The sweep over separation is the outer loop: the solver is called once per tip–surface
+separation, and the steady-state amplitude is extracted from each run.
+
+<SweepRangeFigure />
 
 ## Key Design Decisions
 
-[PLACEHOLDER] Walk through the most consequential choices made during development. How did you model the cantilever? What ODE/PDE formulation did you use? Why that solver? What assumptions did you bake in, and which ones did you explicitly avoid? Be specific about the engineering reasoning behind each decision.
+**Non-dimensionalize before writing any code.** In SI units this system carries a mass of
+7×10⁻¹² kg, forces around 3×10⁻⁹ N, and displacements of 10⁻¹⁰ m. A solver's default
+absolute tolerance of 10⁻⁶ is larger than every quantity in the problem. It would report
+success while resolving nothing. Scaled, the states are order 1 and the tolerances mean
+what they say.
+
+**Validate where an answer exists, not where you need one.** With F<sub>ts</sub> = 0 the
+system has a closed-form solution, obtained symbolically with `dsolve`. That tier is
+useless as physics, since the tip never approaches anything, and it is the only place a
+solver can be graded against truth. Six MATLAB solvers were run against it: ode23, ode45,
+ode113, ode78, and the stiff pair ode15s and ode23s.
+
+**Score magnitude and phase separately.** A magnitude error alone will lie. Two solutions
+can agree at every peak and still be shifted a step apart in time, which shows up as a
+large amplitude error that is really a timing error. So the peak of the analytical
+steady-state solution was located, the numerical solutions sampled a few steps either
+side, and both quantities recorded: the error in value, and the offset in peak time.
+
+<SolverErrorFigure />
+
+**Carry ode78 into the nonlinear runs.** Its peak error of 8.8×10⁻⁴ is roughly fifty times
+smaller than ode113 at 4.3×10⁻², and nearly three decades better than ode23s at 6.2×10⁻¹.
+The two stiff solvers landing mid-pack is the expected result rather than a surprising one.
+With F<sub>ts</sub> = 0 the problem is not stiff, and an implicit method's extra machinery
+buys nothing. Phase offsets ran to one or two steps for every solver and did not separate
+them, so magnitude decided it.
+
+**Read amplitude only from the steady state.** The transient decays with a time constant
+of 2Q = 600, so the 4000-unit run is deliberately long: by τ = 3000 the transient is down
+to 0.7%, and the amplitude is taken as the maximum over what remains.
+
+<TransientDecayFigure />
 
 ## Tradeoffs
 
-[PLACEHOLDER] Every design decision has a cost. What did you trade off for numerical stability? Where did you sacrifice physical fidelity for computational tractability? What simplifications turned out to matter more than expected, and which ones turned out to be fine?
+**The output grid is coarse, and it constrains the measurement rather than the
+integration.** Solutions are returned on a fixed grid of 1 non-dimensional time unit, which
+is about six samples per oscillation. MATLAB steps adaptively underneath that grid, so the
+integration itself is unaffected. Everything read *off* the grid inherits it. Amplitude
+comes out as a maximum over samples, which only lands close to the true peak because the
+steady-state window holds roughly 160 cycles and one of them happens to be sampled near its
+crest. Phase is worse: measured as a difference of peak indices, it cannot resolve better
+than one sample, which is 16% of a cycle. The finding that phase error was one to two steps
+everywhere is partly a statement about the grid.
 
-## Lessons Learned
+**The solver was ranked in a regime it was not used in.** ode78 won on a problem that is
+smooth, linear, and non-stiff. It was then applied to one that is piecewise and stiff, where
+the stiff solvers it beat might well win. What the validation genuinely establishes is that
+the *implementation* is correct and that ode78 is the strongest non-stiff option, not that
+it is the right solver for contact.
 
-[PLACEHOLDER] What did this project teach you that you didn't expect to learn? What surprised you about the behavior of the system — either the physics or the numerics? What would you tell someone starting a similar project?
+**The sweep was written as duplicated functions.** Each separation in the full model is its
+own MATLAB function with the whole parameter block restated inside it. Changing the Hamaker
+constant means five identical edits, and nothing enforces that they agree. A single function
+taking separation as an argument was the right structure and would have cost less to write
+than the copies did.
+
+**The frequency-domain check was dropped.** Comparing amplitude and phase response through
+an FFT would have measured phase without the grid quantization above. It was attempted and
+abandoned for the time-domain peak method under time pressure. That is the one place where
+the validation is thinner than it should be.
+
+## Results
+
+**With van der Waals alone, across separations of 1.0 to 1.6 free amplitudes, the amplitude
+does not move.** Variation across the entire sweep stays below 10⁻⁸, and the phase
+portraits lie on top of one another. Over this range the attraction is real but not
+measurable: it perturbs the trajectory far below anything an instrument would resolve.
+
+**With contact included, the amplitude becomes the signal.** Sweeping 0.4 to 1.2, amplitude
+rises with separation, close to linearly, until roughly z<sub>c</sub>* = 1, then flattens
+into the same insensitive region the van der Waals sweep found. The phase portraits
+separate cleanly at small separations instead of overlapping.
+
+The crossover is not a coincidence of the parameters. z<sub>c</sub>* = 1 is the separation
+at which the resting gap equals the free amplitude, the first point at which a freely
+swinging tip no longer reaches the surface. Below it the tip strikes every cycle and the
+amplitude is set by the collision; above it contact stops and only the attraction remains,
+which the first sweep already showed to be negligible.
+
+For this parameter set, then: the tapping-mode signal is contact. The phase portraits stay
+elliptical rather than circular throughout, which is the damping and the attractive force
+showing up as a departure from simple harmonic motion.
 
 ## What I'd Improve Next
 
-[PLACEHOLDER] If you continued this project, what would change first? Better solver? More realistic tip-sample interaction model? Automated parameter sweeps? Validation against experimental data? Be specific about what's currently the binding constraint on accuracy or usefulness.
+The binding constraint is that the solver was never validated in the regime that matters.
+In order:
+
+1. **Re-run the comparison in contact.** No analytical solution exists there, so the test
+   becomes a step-size refinement study, halving the tolerance until the answer stops
+   moving, with the stiff solvers back in the running.
+2. **Resolve the tap.** The current output grid cannot see a single collision. Peak contact
+   force, contact duration, and energy dissipated per cycle are all invisible at six samples
+   per period. That needs event detection at the surface crossing and dense output through
+   the strike.
+3. **Make the system autonomous.** Adding a third state for the drive phase removes the
+   explicit time dependence, which simplifies the right-hand side and lets a wider class of
+   methods apply cleanly.
+4. **Parameterize the sweep** so separation is an argument rather than a copy.
+5. **Validate against measured amplitude–distance curves.** Everything above establishes
+   internal consistency. Nothing yet establishes that the model matches an instrument.
+
+---
+
+*Built for a graduate MEMS/NEMS modeling course, spring 2023. The MATLAB source and the
+full write-up, including the validation plots, are available on request via
+[contact](/contact).*

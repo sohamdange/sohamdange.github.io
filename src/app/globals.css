@@ -180,8 +180,18 @@
   text-underline-offset: 2px;
 }
 
-.article-prose a:hover {
+.article-prose a:hover,
+.article-prose a:active {
   color: var(--color-accent-hover);
+}
+
+/* A prose link is already accent-colored, so a color shift alone is a weak
+   focus signal. The ring is the visible replacement the design rules require
+   for stripping the default outline elsewhere. */
+.article-prose a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 1px;
 }
 
 .article-prose blockquote {
@@ -197,4 +207,25 @@
   border: none;
   border-top: 1px solid var(--color-border);
   margin: 2rem 0;
+}
+
+/* ─── Math ────────────────────────────────────────────────────────────
+   Equations are rendered by KaTeX at build time (remark-math +
+   rehype-katex, wired up in the project route). KaTeX sets no color of
+   its own, so the math inherits --color-text and follows the theme
+   without any override here.
+
+   A display equation wider than the 720px column scrolls inside its own
+   block — without this the page itself scrolls sideways at 375px.
+   ──────────────────────────────────────────────────────────────────── */
+
+.article-prose .katex-display {
+  margin: 1.75rem 0;
+  padding: 0.25rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.article-prose .katex {
+  font-size: 1.05em;
 }
